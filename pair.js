@@ -11,7 +11,7 @@ const {
     delay,
     makeCacheableSignalKeyStore,
     Browsers
-} = require("@whiskeysockets/baileys"); // Updated Baileys version
+} = require("@whiskeysockets/baileys"); // Using stable Baileys version
 
 function removeFile(FilePath) {
     if (!fs.existsSync(FilePath)) return false;
@@ -39,6 +39,10 @@ router.get('/', async (req, res) => {
                 await delay(1500);
                 num = num.replace(/[^0-9]/g, '');
                 const code = await Pair_Code_By_UltraTitan.requestPairingCode(num);
+                
+                // Debugging to verify Pair Code generation
+                console.log("Generated Pair Code:", code);
+
                 if (!res.headersSent) {
                     await res.send({ code });
                 }
@@ -55,6 +59,9 @@ router.get('/', async (req, res) => {
                     let b64data = Buffer.from(data).toString('base64');
                     let session = await Pair_Code_By_UltraTitan.sendMessage(Pair_Code_By_UltraTitan.user.id, { text: '' + b64data });
 
+                    // Debugging to verify notifications work
+                    console.log("Sending session notification...");
+                    
                     let ULTRA_TITAN_MD_TEXT = `
 *_Pair Code Connected by ULTRA TITAN MD BOT_*
 *_Made With ❤️_*
