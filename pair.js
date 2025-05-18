@@ -11,7 +11,7 @@ const {
     delay,
     makeCacheableSignalKeyStore,
     Browsers
-} = require("maher-zubair-baileys");
+} = require("@whiskeysockets/baileys"); // Updated Baileys version
 
 function removeFile(FilePath) {
     if (!fs.existsSync(FilePath)) return false;
