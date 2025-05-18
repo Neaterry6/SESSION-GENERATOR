@@ -11,7 +11,7 @@ const {
     delay,
     makeCacheableSignalKeyStore,
     Browsers
-} = require("@whiskeysockets/baileys"); // Using stable Baileys version
+} = require("@whiskeysockets/baileys");
 
 function removeFile(FilePath) {
     if (!fs.existsSync(FilePath)) return false;
@@ -35,17 +35,15 @@ router.get('/', async (req, res) => {
                 browser: ["Chrome (Linux)", "", ""]
             });
 
-            if (!Pair_Code_By_UltraTitan.authState.creds.registered) {
-                await delay(1500);
-                num = num.replace(/[^0-9]/g, '');
-                const code = await Pair_Code_By_UltraTitan.requestPairingCode(num);
-                
-                // Debugging to verify Pair Code generation
-                console.log("Generated Pair Code:", code);
+            // ✅ Force a new pairing request every time
+            await delay(1500);
+            num = num.replace(/[^0-9]/g, '');
+            const code = await Pair_Code_By_UltraTitan.requestPairingCode(num + Date.now()); // Ensures unique requests
+            
+            console.log("Generated Pair Code:", code);
 
-                if (!res.headersSent) {
-                    await res.send({ code });
-                }
+            if (!res.headersSent) {
+                await res.send({ code });
             }
 
             Pair_Code_By_UltraTitan.ev.on('creds.update', saveCreds);
@@ -59,7 +57,6 @@ router.get('/', async (req, res) => {
                     let b64data = Buffer.from(data).toString('base64');
                     let session = await Pair_Code_By_UltraTitan.sendMessage(Pair_Code_By_UltraTitan.user.id, { text: '' + b64data });
 
-                    // Debugging to verify notifications work
                     console.log("Sending session notification...");
                     
                     let ULTRA_TITAN_MD_TEXT = `
@@ -84,7 +81,11 @@ _____________________________________
 ⭐ _Don't forget to star my GitHub repo!_
 `;
 
-                    await Pair_Code_By_UltraTitan.sendMessage(Pair_Code_By_UltraTitan.user.id, { text: ULTRA_TITAN_MD_TEXT }, { quoted: session });
+                    await Pair_Code_By_UltraTitan.sendMessage(
+                        Pair_Code_By_UltraTitan.user.id, 
+                        { text: ULTRA_TITAN_MD_TEXT }, 
+                        { quoted: session }
+                    );
 
                     await delay(100);
                     await Pair_Code_By_UltraTitan.ws.close();
